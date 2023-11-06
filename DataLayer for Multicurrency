@@ -1,0 +1,39 @@
+<script>
+  window.dataLayer = window.dataLayer || [];
+  dataLayer.push({ ecommerce: null });
+
+  {% if first_time_accessed %}
+  dataLayer.push({
+    event: "purchase",
+    ecommerce: {
+      transaction_id: "{{ order.order_number }}",
+      value: {{ total_price | times: 0.01 }},
+      tax: {{ tax_price | times: 0.01 }},
+      shipping: {{ shipping_price | times: 0.01 }},
+      currency: "{{ order.currency }}",
+      items: [
+        {% for line_item in line_items %}
+        {
+          item_id: "{{ line_item.product_id }}",
+          item_name: "{{ line_item.title | remove: "'" | remove: '"' }}",
+          item_variant: "{{ line_item.variant_id }}",
+          price: {{ line_item.final_price | times: 0.01 }},
+          quantity: {{ line_item.quantity }}
+        },
+        {% endfor %}
+      ]
+    },
+    customer: {
+      id: "{{ customer.id }}",
+      email: "{{ customer.email }}",
+      first_name: "{{ customer.first_name }}",
+      last_name: "{{ customer.last_name }}",
+      city: "{{ customer.default_address.city }}",
+      phone: "{{ customer.default_address.phone }}",
+      country: "{{ customer.default_address.country }}",
+      postal_code: "{{ customer.default_address.zip }}"
+      // Add more customer properties as needed
+    }
+  });
+  {% endif %}
+</script>
